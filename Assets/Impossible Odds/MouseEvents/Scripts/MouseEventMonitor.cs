@@ -33,9 +33,9 @@
 		/// </summary>
 		public event Action<MouseButtonEvent> onDragCompleted;
 
-		[SerializeField, Tooltip("Which mouse button should be monitored?")]
+		[SerializeField, Tooltip("Which mouse buttons should be monitored?")]
 		private List<MouseButton> monitoredButtons = new List<MouseButton>();
-		[SerializeField, Tooltip("How long should it wait to register a multi-click?"), Range(0.1f, 1f)]
+		[SerializeField, Tooltip("How long (in seconds) should it wait for registering a multi-click event?"), Range(0.1f, 1f)]
 		private float multiClickTimeTreshold = 0.2f;
 
 		private Dictionary<MouseButton, MouseButtonStateTracker> stateTrackers = new Dictionary<MouseButton, MouseButtonStateTracker>();
@@ -114,7 +114,7 @@
 			if (IsMonitored(mouseButton))
 			{
 				stateTrackers.Remove(mouseButton);
-				monitoredButtons.Remove(mouseButton);
+				monitoredButtons.RemoveAll(mB => mB == mouseButton);
 			}
 		}
 
