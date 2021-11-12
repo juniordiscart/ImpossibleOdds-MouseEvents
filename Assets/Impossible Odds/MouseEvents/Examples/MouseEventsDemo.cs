@@ -3,17 +3,17 @@
 	using System.Collections;
 	using System.Collections.Generic;
 	using UnityEngine;
-	using TMPro;
+	using UnityEngine.UI;
 	using ImpossibleOdds.MouseEvents;
 
 	public class MouseEventsDemo : MonoBehaviour
 	{
 		[SerializeField]
-		private TMP_Text txtLeft = null;
+		private Text txtLeft = null;
 		[SerializeField]
-		private TMP_Text txtMiddle = null;
+		private Text txtMiddle = null;
 		[SerializeField]
-		private TMP_Text txtRight = null;
+		private Text txtRight = null;
 
 		[SerializeField]
 		private MouseEventMonitor monitor = null;
@@ -21,7 +21,7 @@
 		[SerializeField, Range(0f, 5f)]
 		private float statusClearTime = 3f;
 
-		private Dictionary<TMP_Text, Coroutine> pendingClearRoutines = new Dictionary<TMP_Text, Coroutine>();
+		private Dictionary<Text, Coroutine> pendingClearRoutines = new Dictionary<Text, Coroutine>();
 
 		private void Start()
 		{
@@ -50,7 +50,7 @@
 					break;
 			}
 
-			TMP_Text display = null;
+			Text display = null;
 			string clearText = string.Empty;
 			switch (mouseEvent.Button)
 			{
@@ -84,7 +84,7 @@
 			}
 		}
 
-		private IEnumerator RoutineClearText(TMP_Text display, string clearText)
+		private IEnumerator RoutineClearText(Text display, string clearText)
 		{
 			yield return new WaitForSeconds(statusClearTime);
 			display.text = clearText;
