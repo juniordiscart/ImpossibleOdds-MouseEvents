@@ -44,3 +44,23 @@ The following packages were added:
   com.unity.textmeshpro@2.1.6
   com.unity.timeline@1.2.18
   com.unity.ugui@1.0.0
+
+=== Tue Nov  9 12:42:45 2021
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.collab-proxy from version 1.6.0 to 1.10.2
+  com.unity.ide.visualstudio from version 2.0.9 to 2.0.11
+  com.unity.ide.vscode from version 1.2.3 to 1.2.4
+  com.unity.test-framework from version 1.1.27 to 1.1.29
+
+=== Mon Jan 17 21:40:47 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.collab-proxy from version 1.10.2 to 1.14.4
+  com.unity.ide.visualstudio from version 2.0.11 to 2.0.12

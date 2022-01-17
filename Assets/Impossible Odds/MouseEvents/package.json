@@ -1,0 +1,22 @@
+{
+	"name": "com.impossibleodds.mousevents",
+	"version": "1.0.0",
+	"displayName": "Impossible Odds - Mouse Events",
+	"unity": "2019.4",
+	"documentationUrl": "https://github.com/juniordiscart/ImpossibleOdds-MouseEvents/blob/master/README.md",
+	"licensesUrl": "https://github.com/juniordiscart/ImpossibleOdds-MouseEvents/blob/master/LICENSE.md",
+	"description": "In some types of games, the mouse cursor plays a vital part in controlling the game's mechanics. The Unity game engine provides a simple but bare interface of working with certain mouse events. The Impossible Odds Mouse Events tool provides a robust way in dealing with clicking and dragging events in your game.",
+	"keywords": [
+		"csharp",
+		"unity",
+		"unity3d",
+		"game-development",
+		"mouse",
+		"double-click"
+	],
+	"author": {
+		"name": "Jan Discart",
+		"email": "jan.discart@impossible-odds.net",
+		"url": "https://www.impossible-odds.net"
+	}
+}
