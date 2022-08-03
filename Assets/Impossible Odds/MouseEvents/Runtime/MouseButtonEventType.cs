@@ -22,12 +22,16 @@
 		/// </summary>
 		DoubleClick = 3,
 		/// <summary>
+		/// When the mouse button is being used to initiate a drag action.
+		/// </summary>
+		DragStart = 4,
+		/// <summary>
 		/// When the mouse button is being used for dragging.
 		/// </summary>
-		Dragging = 4,
+		Dragging = 5,
 		/// <summary>
 		/// When the mouse button completed a drag action.
 		/// </summary>
-		DragComplete = 5
+		DragComplete = 6
 	}
 }

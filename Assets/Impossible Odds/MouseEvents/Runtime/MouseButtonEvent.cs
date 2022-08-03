@@ -23,7 +23,7 @@
 		/// Create a single click event.
 		/// </summary>
 		/// <param name="mouseButton">The mouse button that relates to the single click event.</param>
-		/// <param name="modifiers">The modifers active during this event.</param>
+		/// <param name="modifiers">The modifiers active during this event.</param>
 		/// <returns>An event representing a single click.</returns>
 		public static MouseButtonEvent CreateSingleClickEvent(MouseButton mouseButton, EventModifiers modifiers = EventModifiers.None)
 		{
@@ -34,7 +34,7 @@
 		/// Create a double click event.
 		/// </summary>
 		/// <param name="mouseButton">The mouse button that relates to the double click event.</param>
-		/// <param name="modifiers">The modifers active during this event.</param>
+		/// <param name="modifiers">The modifiers active during this event.</param>
 		/// <returns>An event representing a double click.</returns>
 		public static MouseButtonEvent CreateDoubleClickEvent(MouseButton mouseButton, EventModifiers modifiers = EventModifiers.None)
 		{
@@ -42,13 +42,24 @@
 		}
 
 		/// <summary>
-		/// Create a drag event. This event can represent the start of the drag manouvre, or an ongoing drag manouvre.
+		/// Create a drag start event.
+		/// </summary>
+		/// <param name="mouseButton">The mouse button that relates to the drag start event.</param>
+		/// <param name="modifiers">The modifiers active during this event.</param>
+		/// <returns>An event representing the start of a drag operation.</returns>
+		public static MouseButtonEvent CreateDragStartedEvent(MouseButton mouseButton, Vector2 startPosition, EventModifiers modifiers = EventModifiers.None)
+		{
+			return new MouseButtonEvent(mouseButton, modifiers, MouseButtonEventType.DragStart, startPosition, startPosition);
+		}
+
+		/// <summary>
+		/// Create a drag event. This event can represent the start of the drag manoeuver, or an ongoing drag manoeuver.
 		/// </summary>
 		/// <param name="mouseButton">The mouse button that relates to the drag event.</param>
-		/// <param name="startPosition">The start position of the mouse of this drag manouvre.</param>
-		/// <param name="currentPosition">The current mouse position of this drag manouvre.</param>
-		/// <param name="modifiers">The modifers active during this event.</param>
-		/// <returns>An event representing a mouse drag manouvre.</returns>
+		/// <param name="startPosition">The start position of the mouse of this drag manoeuver.</param>
+		/// <param name="currentPosition">The current mouse position of this drag manoeuver.</param>
+		/// <param name="modifiers">The manoeuver active during this event.</param>
+		/// <returns>An event representing a mouse drag manoeuver.</returns>
 		public static MouseButtonEvent CreateDraggingEvent(MouseButton mouseButton, Vector2 startPosition, Vector2 currentPosition, EventModifiers modifiers = EventModifiers.None)
 		{
 			return new MouseButtonEvent(mouseButton, modifiers, MouseButtonEventType.Dragging, startPosition, currentPosition);
@@ -58,9 +69,9 @@
 		/// Create a drag completed event.
 		/// </summary>
 		/// <param name="mouseButton">The mouse button that relates to the drag event.</param>
-		/// <param name="startPosition">The start position of the mouse of this drag manouvre.</param>
-		/// <param name="currentPosition">The mouse position at the end of this drag manouvre.</param>
-		/// <param name="modifiers">The modifers active during this event.</param>
+		/// <param name="startPosition">The start position of the mouse of this drag manoeuver.</param>
+		/// <param name="currentPosition">The mouse position at the end of this drag manoeuver.</param>
+		/// <param name="modifiers">The manoeuver active during this event.</param>
 		/// <returns>An event representing a mouse drag completed.</returns>
 		public static MouseButtonEvent CreateDragCompletedEvent(MouseButton mouseButton, Vector2 startPosition, Vector2 currentPosition, EventModifiers modifiers = EventModifiers.None)
 		{
@@ -72,7 +83,7 @@
 		/// </summary>
 		public static MouseButtonEvent None
 		{
-			get { return new MouseButtonEvent(MouseButton.None, EventModifiers.None, MouseButtonEventType.None); }
+			get => new MouseButtonEvent(MouseButton.None, EventModifiers.None, MouseButtonEventType.None);
 		}
 
 		private readonly MouseButton mouseButton;
@@ -99,7 +110,7 @@
 		/// </summary>
 		public MouseButton Button
 		{
-			get { return mouseButton; }
+			get => mouseButton;
 		}
 
 		/// <summary>
@@ -107,7 +118,7 @@
 		/// </summary>
 		public MouseButtonEventType EventType
 		{
-			get { return buttonState; }
+			get => buttonState;
 		}
 
 		/// <summary>
@@ -115,7 +126,7 @@
 		/// </summary>
 		public EventModifiers Modifiers
 		{
-			get { return modifiers; }
+			get => modifiers;
 		}
 
 		/// <summary>
@@ -123,15 +134,36 @@
 		/// </summary>
 		public bool IsClick
 		{
-			get { return (buttonState == MouseButtonEventType.SingleClick) || (buttonState == MouseButtonEventType.DoubleClick); }
+			get
+			{
+				switch (buttonState)
+				{
+					case MouseButtonEventType.SingleClick:
+					case MouseButtonEventType.DoubleClick:
+						return true;
+					default:
+						return false;
+				}
+			}
 		}
 
 		/// <summary>
-		/// Does the event represent a dragging manouvre?
+		/// Does the event represent a dragging manoeuver?
 		/// </summary>
 		public bool IsDrag
 		{
-			get { return (buttonState == MouseButtonEventType.Dragging) || (buttonState == MouseButtonEventType.DragComplete); }
+			get
+			{
+				switch (buttonState)
+				{
+					case MouseButtonEventType.DragStart:
+					case MouseButtonEventType.Dragging:
+					case MouseButtonEventType.DragComplete:
+						return true;
+					default:
+						return false;
+				}
+			}
 		}
 
 		/// <summary>
@@ -139,7 +171,7 @@
 		/// </summary>
 		public bool IsSingleClick
 		{
-			get { return buttonState == MouseButtonEventType.SingleClick; }
+			get => buttonState == MouseButtonEventType.SingleClick;
 		}
 
 		/// <summary>
@@ -147,7 +179,15 @@
 		/// </summary>
 		public bool IsDoubleClick
 		{
-			get { return buttonState == MouseButtonEventType.DoubleClick; }
+			get => buttonState == MouseButtonEventType.DoubleClick;
+		}
+
+		/// <summary>
+		/// Is this event a drag-start event?
+		/// </summary>
+		public bool IsDragStart
+		{
+			get => buttonState == MouseButtonEventType.DragStart;
 		}
 
 		/// <summary>
@@ -155,7 +195,7 @@
 		/// </summary>
 		public bool IsDragging
 		{
-			get { return buttonState == MouseButtonEventType.Dragging; }
+			get => buttonState == MouseButtonEventType.Dragging;
 		}
 
 		/// <summary>
@@ -163,7 +203,7 @@
 		/// </summary>
 		public bool IsDragCompleted
 		{
-			get { return buttonState == MouseButtonEventType.DragComplete; }
+			get => buttonState == MouseButtonEventType.DragComplete;
 		}
 
 		/// <summary>
@@ -171,7 +211,7 @@
 		/// </summary>
 		public Vector2 DragStartPosition
 		{
-			get { return dragStart; }
+			get => dragStart;
 		}
 
 		/// <summary>
@@ -179,7 +219,7 @@
 		/// </summary>
 		public Vector2 MousePosition
 		{
-			get { return mousePosition; }
+			get => mousePosition;
 		}
 
 		/// <summary>
@@ -187,7 +227,20 @@
 		/// </summary>
 		public Vector2 DragDelta
 		{
-			get { return mousePosition - dragStart; }
+			get => mousePosition - dragStart;
+		}
+
+		/// <summary>
+		/// The drag rectangle description of the mouse during a drag event.
+		/// </summary>
+		public Rect DragRect
+		{
+			get
+			{
+				Vector2 min = Vector2.Min(mousePosition, dragStart);
+				Vector2 max = Vector2.Max(mousePosition, dragStart);
+				return new Rect(min, max - min);
+			}
 		}
 	}
 }

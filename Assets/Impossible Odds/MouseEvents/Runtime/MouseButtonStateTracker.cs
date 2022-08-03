@@ -8,7 +8,7 @@
 		public event Action<MouseButtonStateTracker> onStateUpdated;
 
 		private readonly MouseButton button;
-		private readonly Func<float> multiClickTimeTreshold = null;
+		private readonly Func<float> multiClickTimeThreshold = null;
 
 		private MouseButtonEventType state = MouseButtonEventType.None;
 		private EventModifiers lastModifiers = EventModifiers.None;
@@ -18,33 +18,33 @@
 
 		public MouseButton Key
 		{
-			get { return button; }
+			get => button;
 		}
 
 		public MouseButtonEventType State
 		{
-			get { return state; }
+			get => state;
 		}
 
 		public EventModifiers Modifiers
 		{
-			get { return lastModifiers; }
+			get => lastModifiers;
 		}
 
 		public Vector2 DragStartPosition
 		{
-			get { return dragStartPosition; }
+			get => dragStartPosition;
 		}
 
 		public Vector2 MousePosition
 		{
-			get { return mousePosition; }
+			get => mousePosition;
 		}
 
-		public MouseButtonStateTracker(MouseButton button, Func<float> multiClickTimeTreshold)
+		public MouseButtonStateTracker(MouseButton button, Func<float> multiClickTimeThreshold)
 		{
 			this.button = button;
-			this.multiClickTimeTreshold = multiClickTimeTreshold;
+			this.multiClickTimeThreshold = multiClickTimeThreshold;
 			ClearState();
 		}
 
@@ -58,7 +58,7 @@
 			switch (state)
 			{
 				case MouseButtonEventType.SingleClickPending:
-					if (lastClickAction >= multiClickTimeTreshold())
+					if (lastClickAction >= multiClickTimeThreshold())
 					{
 						state = MouseButtonEventType.SingleClick;
 						lastClickAction = 0f;
@@ -85,7 +85,6 @@
 			switch (mouseEvent.type)
 			{
 				case EventType.MouseUp:
-
 					switch (state)
 					{
 						case MouseButtonEventType.None:
@@ -114,12 +113,17 @@
 
 					break;
 				case EventType.MouseDrag:
-					if (state != MouseButtonEventType.Dragging)
+					if ((state != MouseButtonEventType.Dragging) &&
+						(state != MouseButtonEventType.DragStart))
 					{
 						dragStartPosition = mouseEvent.mousePosition;
+						state = MouseButtonEventType.DragStart; // The first of such events initiates the drag start.
+					}
+					else
+					{
+						state = MouseButtonEventType.Dragging;
 					}
 
-					state = MouseButtonEventType.Dragging;
 					lastModifiers = mouseEvent.modifiers;
 					mousePosition = mouseEvent.mousePosition;
 					OnStateUpdated();

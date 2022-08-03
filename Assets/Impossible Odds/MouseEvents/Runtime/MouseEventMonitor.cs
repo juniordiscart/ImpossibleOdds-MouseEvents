@@ -7,7 +7,7 @@
 	/// <summary>
 	/// A monitoring class of mouse events to detect single & double clicks as well as drag behaviour.
 	/// Events are processed in OnGUI, which guarantees that the state is available for all scripts
-	/// quering for mouse events in Update, Late Update, Coroutines etc.
+	/// querying for mouse events in Update, Late Update, Coroutines etc.
 	/// </summary>
 	public class MouseEventMonitor : MonoBehaviour
 	{
@@ -24,8 +24,12 @@
 		/// </summary>
 		public event Action<MouseButtonEvent> onDoubleClick;
 		/// <summary>
+		/// Called when a drag-start event is generated.
+		/// </summary>
+		public event Action<MouseButtonEvent> onDragStart;
+		/// <summary>
 		/// Called when a drag event is generated.
-		/// Note: this is not continuous, a drag event is only generated on mouse movement.
+		/// Note: this is not continuous, a drag event is only generated when actual mouse movement in detected.
 		/// </summary>
 		public event Action<MouseButtonEvent> onDragOngoing;
 		/// <summary>
@@ -36,7 +40,7 @@
 		[SerializeField, Tooltip("Which mouse buttons should be monitored?")]
 		private List<MouseButton> monitoredButtons = new List<MouseButton>();
 		[SerializeField, Tooltip("How long (in seconds) should it wait for registering a multi-click event?"), Range(0.1f, 1f)]
-		private float multiClickTimeTreshold = 0.2f;
+		private float multiClickTimeThreshold = 0.2f;
 
 		private Dictionary<MouseButton, MouseButtonStateTracker> stateTrackers = new Dictionary<MouseButton, MouseButtonStateTracker>();
 		private int frameCount = 0;
@@ -46,15 +50,15 @@
 		/// </summary>
 		public IReadOnlyList<MouseButton> MonitoredButtons
 		{
-			get { return monitoredButtons; }
+			get => monitoredButtons;
 		}
 
 		/// <summary>
 		/// How long should it wait to register a multi-click?
 		/// </summary>
-		public float MultiClickTimeTreshold
+		public float MultiClickTimeThreshold
 		{
-			get { return multiClickTimeTreshold; }
+			get => multiClickTimeThreshold;
 			set
 			{
 				if (value <= 0f)
@@ -62,7 +66,7 @@
 					throw new ArgumentOutOfRangeException("The delay for single clicks should be greater than 0.");
 				}
 
-				multiClickTimeTreshold = value;
+				multiClickTimeThreshold = value;
 			}
 		}
 
@@ -98,7 +102,7 @@
 
 				if (enabled)
 				{
-					MouseButtonStateTracker stateTracker = new MouseButtonStateTracker(mouseButton, () => multiClickTimeTreshold);
+					MouseButtonStateTracker stateTracker = new MouseButtonStateTracker(mouseButton, () => multiClickTimeThreshold);
 					stateTrackers[mouseButton] = stateTracker;
 					stateTracker.onStateUpdated += OnMouseKeyStateUpdate;
 				}
@@ -123,7 +127,7 @@
 			frameCount = Time.frameCount;
 			foreach (MouseButton key in monitoredButtons)
 			{
-				MouseButtonStateTracker state = new MouseButtonStateTracker(key, () => multiClickTimeTreshold);
+				MouseButtonStateTracker state = new MouseButtonStateTracker(key, () => multiClickTimeThreshold);
 				stateTrackers[key] = state;
 				state.onStateUpdated += OnMouseKeyStateUpdate;
 			}
@@ -173,6 +177,10 @@
 					break;
 				case MouseButtonEventType.DoubleClick:
 					CallEvent(onDoubleClick, currentEventData);
+					CallEvent(onEvent, currentEventData);
+					break;
+				case MouseButtonEventType.DragStart:
+					CallEvent(onDragStart, currentEventData);
 					CallEvent(onEvent, currentEventData);
 					break;
 				case MouseButtonEventType.Dragging:
