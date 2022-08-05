@@ -1,0 +1,16 @@
+{
+    "name": "ImpossibleOdds.MouseEvents.Samples",
+    "rootNamespace": "",
+    "references": [
+        "ImpossibleOdds.MouseEvents"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
