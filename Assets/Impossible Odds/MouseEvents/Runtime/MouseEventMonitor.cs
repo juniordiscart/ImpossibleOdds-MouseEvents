@@ -12,6 +12,11 @@
 	public class MouseEventMonitor : MonoBehaviour
 	{
 		/// <summary>
+		/// Called when a new is started that will process the mouse events that happened.
+		/// This may be useful for clearing mouse event caches that can be filled up again this frame.
+		/// </summary>
+		public event Action onNewFrame;
+		/// <summary>
 		/// Called when a single or double click is registered, or a drag event is registered.
 		/// </summary>
 		public event Action<MouseButtonEvent> onEvent;
@@ -159,6 +164,11 @@
 
 		private void ProcessNewFrame()
 		{
+			if (onNewFrame != null)
+			{
+				onNewFrame();
+			}
+
 			foreach (MouseButton key in monitoredButtons)
 			{
 				stateTrackers[key].NewFrame();
