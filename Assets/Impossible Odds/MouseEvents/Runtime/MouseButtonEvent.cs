@@ -242,5 +242,24 @@
 				return new Rect(min, max - min);
 			}
 		}
+
+		/// <summary>
+		/// Does this event conclude the chain of possible follow-up mouse events?
+		/// </summary>
+		public bool IsTerminalEvent
+		{
+			get
+			{
+				switch (EventType)
+				{
+					case MouseButtonEventType.SingleClick:
+					case MouseButtonEventType.DoubleClick:
+					case MouseButtonEventType.DragComplete:
+						return true;
+					default:
+						return false;
+				}
+			}
+		}
 	}
 }

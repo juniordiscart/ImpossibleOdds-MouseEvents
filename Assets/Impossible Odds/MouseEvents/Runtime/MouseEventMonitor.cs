@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using UnityEngine;
+	using UnityEngine.EventSystems;
 
 	/// <summary>
 	/// A monitoring class of mouse events to detect single & double clicks as well as drag behaviour.
@@ -11,11 +12,6 @@
 	/// </summary>
 	public class MouseEventMonitor : MonoBehaviour
 	{
-		/// <summary>
-		/// Called when a new is started that will process the mouse events that happened.
-		/// This may be useful for clearing mouse event caches that can be filled up again this frame.
-		/// </summary>
-		public event Action onNewFrame;
 		/// <summary>
 		/// Called when a single or double click is registered, or a drag event is registered.
 		/// </summary>
@@ -48,7 +44,8 @@
 		private float multiClickTimeThreshold = 0.2f;
 
 		private Dictionary<MouseButton, MouseButtonStateTracker> stateTrackers = new Dictionary<MouseButton, MouseButtonStateTracker>();
-		private int frameCount = 0;
+		private int frameCount = -1;
+		private Vector3 mousePosition = Vector3.zero;
 
 		/// <summary>
 		/// The mouse buttons currently being monitored for events.
@@ -129,49 +126,127 @@
 
 		private void OnEnable()
 		{
-			frameCount = Time.frameCount;
 			foreach (MouseButton key in monitoredButtons)
 			{
 				MouseButtonStateTracker state = new MouseButtonStateTracker(key, () => multiClickTimeThreshold);
 				stateTrackers[key] = state;
 				state.onStateUpdated += OnMouseKeyStateUpdate;
 			}
+
+			ProcessNewFrame();
 		}
 
 		private void OnDisable()
 		{
-			frameCount = 0;
+			frameCount = -1;
 			stateTrackers.Clear();
 		}
 
-		private void OnGUI()
+		private void Update()
 		{
-			if (frameCount != Time.frameCount)
-			{
-				frameCount = Time.frameCount;
-				ProcessNewFrame();
-			}
+			ProcessNewFrame();
+		}
 
-			if (Event.current.isMouse)
-			{
-				MouseButton mouseButtonIndex = (MouseButton)Event.current.button;
-				if (stateTrackers.ContainsKey(mouseButtonIndex))
-				{
-					stateTrackers[mouseButtonIndex].ProcessEvent(Event.current);
-				}
-			}
+		private void FixedUpdate()
+		{
+			ProcessNewFrame();
 		}
 
 		private void ProcessNewFrame()
 		{
-			if (onNewFrame != null)
+			if (!Input.mousePresent || (frameCount == Time.frameCount))
 			{
-				onNewFrame();
+				return;
 			}
 
+			frameCount = Time.frameCount;
+
+			// Let each state tracker know a new is being processed.
 			foreach (MouseButton key in monitoredButtons)
 			{
 				stateTrackers[key].NewFrame();
+			}
+
+			foreach (MouseButton mouseButton in stateTrackers.Keys)
+			{
+				int mouseButtonIndex = (int)mouseButton;
+				Event mouseEvent = null;
+
+				if (Input.GetMouseButton(mouseButtonIndex))
+				{
+					if (mousePosition != Input.mousePosition)
+					{
+						mouseEvent = new Event();
+						mouseEvent.type = EventType.MouseDrag;
+						mouseEvent.delta = Input.mousePosition - mousePosition;
+					}
+				}
+				else if (Input.GetMouseButtonDown(mouseButtonIndex))
+				{
+					mouseEvent = new Event();
+					mouseEvent.type = EventType.MouseDown;
+				}
+				else if (Input.GetMouseButtonUp(mouseButtonIndex))
+				{
+					mouseEvent = new Event();
+					mouseEvent.type = EventType.MouseUp;
+				}
+
+				if (mouseEvent != null)
+				{
+					mouseEvent.button = mouseButtonIndex;
+					mouseEvent.mousePosition = Input.mousePosition;
+					mouseEvent.keyCode = MapMouseButtonToKeyCode(mouseButton);
+					ApplyModifierKeys(mouseEvent);
+					stateTrackers[mouseButton].ProcessEvent(mouseEvent);
+				}
+			}
+
+			mousePosition = Input.mousePosition;
+
+			/// <summary>
+			/// Apply any modifier keys being held down to the mouse event.
+			/// </summary>
+			void ApplyModifierKeys(Event mouseEvent)
+			{
+				if (Input.GetKey(KeyCode.AltGr) || Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+				{
+					mouseEvent.alt = true;
+				}
+
+				if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+				{
+					mouseEvent.shift = true;
+				}
+
+				if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+				{
+					mouseEvent.control = true;
+				}
+
+				if (Input.GetKey(KeyCode.LeftWindows) || Input.GetKey(KeyCode.RightWindows) ||
+					Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightCommand))
+				{
+					mouseEvent.command = true;
+				}
+			}
+
+			/// <summary>
+			/// Map a mouse button value to a mouse button key code.
+			/// </summary>
+			KeyCode MapMouseButtonToKeyCode(MouseButton mouseButton)
+			{
+				switch (mouseButton)
+				{
+					case MouseButton.Left:
+						return KeyCode.Mouse0;
+					case MouseButton.Right:
+						return KeyCode.Mouse1;
+					case MouseButton.Middle:
+						return KeyCode.Mouse2;
+					default:
+						return KeyCode.None;
+				}
 			}
 		}
 

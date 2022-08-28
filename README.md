@@ -17,6 +17,7 @@ When your game is running, you can listen for each of the following events:
 
 * `onSingleClick`: when a single click is registered.
 * `onDoubleClick`: when a double click is registered.
+* `OnDragStart`: when a drag operation is started.
 * `onDragOngoing`: when the mouse pointer is being dragged while one of the mouse buttons is being held down.
 * `onDragCompleted`: when the drag operation has ended.
 * `onEvent`: called right after when any of the above events are called.
@@ -29,11 +30,11 @@ Additionally, you can also query the state of a specific mouse button on the mou
 
 ## Advanced
 
-The main point of entry is the `MouseEventMonitor` script. It requires to be placed on a game object in your scene and will monitor the mouse inputs you set it up to be: left, right and/or middle mouse buttons. Apart from which mouse buttons it should monitor, you can also adjust the time treshold for registering multi-clicks (double click). Unity does not allow to transparently distinguish between single click and double click without always invoking the single click event. This multi-click time treshold is the time limit it will delay a single click event while listening in for a secondary click or other event.
+The main point of entry is the `MouseEventMonitor` script. It requires to be placed on a game object in your scene and will monitor the mouse inputs you set it up to be: left, right and/or middle mouse buttons. Apart from which mouse buttons it should monitor, you can also adjust the time threshold for registering multi-clicks (double click). Unity does not allow to transparently distinguish between single click and double click without always invoking the single click event. This multi-click time threshold is the time limit it will delay a single click event while listening in for a secondary click or other event.
 
 You can listen for events of the registered mouse buttons as well as querying the current state of a particular button using the `CurrentEvent` method. When a new mouse button requires monitoring, you can add it using the `StartMonitoring` method. Conversely, you can also stop monitoring events for a specific mouse button by calling the `StopMonitoring` method.
 
-This script primarily works using Unity's `OnGUI` method, which is called at the end of update cycle for each input event that occurred during that frame. The state of a mouse button is only cleared the first call to this method of that frame. This means that the full state of the tracked mouse buttons remains valid for the full followup frame, which is a more robust way of working that keeping and clearing state in `Update` or `LateUpdate`.
+This script primarily works using Unity's `Update` and `FixedUpdate` methods (whichever runs first that frame). The `MouseEventMonitor` script is also placed at the lowest _script execution order_ value automatically, so that it always runs first. This guarantees that the input states are updated and available for all other scripts that may potentially need them.
 
 Internally, the event monitor employs a `MouseButtonStateTracker` object per mouse button that's registered for monitoring. It's basically a small state machine which keeps track of what's happening with a particular mouse button. When it changes state, it will let interested parties know, e.g. the mouse event monitor.
 

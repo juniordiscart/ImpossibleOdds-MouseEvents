@@ -39,6 +39,9 @@
 				case MouseButtonEventType.DoubleClick:
 					eventType = string.Format($"click (double click)");
 					break;
+				case MouseButtonEventType.DragStart:
+					eventType = string.Format($"drag (start)");
+					break;
 				case MouseButtonEventType.Dragging:
 					eventType = string.Format($"drag (ongoing) - Drag delta: {mouseEvent.DragDelta.ToString("0")}");
 					break;
