@@ -32,6 +32,24 @@
 		/// <summary>
 		/// When the mouse button completed a drag action.
 		/// </summary>
-		DragComplete = 6
+		DragComplete = 6,
+
+		Idle = None
+	}
+
+	public static partial class MouseButtonEventTypeExtensions
+	{
+		public static bool IsTerminalEvent(this MouseButtonEventType e)
+		{
+			switch (e)
+			{
+				case MouseButtonEventType.SingleClick:
+				case MouseButtonEventType.DoubleClick:
+				case MouseButtonEventType.DragComplete:
+					return true;
+				default:
+					return false;
+			}
+		}
 	}
 }

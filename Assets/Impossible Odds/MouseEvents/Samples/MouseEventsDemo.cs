@@ -14,6 +14,10 @@
 		private Text txtMiddle = null;
 		[SerializeField]
 		private Text txtRight = null;
+		[SerializeField]
+		private Text txtIsCursorOverUI = null;
+		[SerializeField]
+		private Toggle toggleSuspendOverUI = null;
 
 		[SerializeField]
 		private MouseEventMonitor monitor = null;
@@ -25,7 +29,16 @@
 
 		private void Start()
 		{
+			Application.targetFrameRate = 60;
 			monitor.onEvent += OnMouseEvent;
+
+			toggleSuspendOverUI.isOn = monitor.SuspendWhenOverUI;
+			toggleSuspendOverUI.onValueChanged.AddListener((isOn) => monitor.SuspendWhenOverUI = isOn);
+		}
+
+		private void Update()
+		{
+			txtIsCursorOverUI.text = string.Format("Is cursor over UI? - {0}", (monitor.IsCursorOverUI ? "Yes" : "No"));
 		}
 
 		private void OnMouseEvent(MouseButtonEvent mouseEvent)

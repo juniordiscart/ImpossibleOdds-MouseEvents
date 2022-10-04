@@ -248,18 +248,7 @@
 		/// </summary>
 		public bool IsTerminalEvent
 		{
-			get
-			{
-				switch (EventType)
-				{
-					case MouseButtonEventType.SingleClick:
-					case MouseButtonEventType.DoubleClick:
-					case MouseButtonEventType.DragComplete:
-						return true;
-					default:
-						return false;
-				}
-			}
+			get => buttonState.IsTerminalEvent();
 		}
 	}
 }

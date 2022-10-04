@@ -41,11 +41,15 @@
 		[SerializeField, Tooltip("Which mouse buttons should be monitored?")]
 		private List<MouseButton> monitoredButtons = new List<MouseButton>();
 		[SerializeField, Tooltip("How long (in seconds) should it wait for registering a multi-click event?"), Range(0.1f, 1f)]
-		private float multiClickTimeThreshold = 0.2f;
+		private float multiClickTimeThreshold = 0.3f;
+		[SerializeField, Tooltip("When the cursor is over UI, should the mouse event monitor suspend operations?")]
+		private bool suspendWhenOverUI = false;
+		[SerializeField, Tooltip("Should the cursor coordinates be reported in pixel coordinates (as reported by Input.mousePosition), or in GUI coordinates (as reported by OnGUI events)?")]
+		private bool cursorPositionInPixelCoordinates = false;
 
 		private Dictionary<MouseButton, MouseButtonStateTracker> stateTrackers = new Dictionary<MouseButton, MouseButtonStateTracker>();
 		private int frameCount = -1;
-		private Vector3 mousePosition = Vector3.zero;
+		private Vector3 previousMousePosition = Vector3.zero;
 
 		/// <summary>
 		/// The mouse buttons currently being monitored for events.
@@ -69,6 +73,66 @@
 				}
 
 				multiClickTimeThreshold = value;
+			}
+		}
+
+		/// <summary>
+		/// When the cursor is over UI, should the mouse event monitor suspend operations?
+		/// </summary>
+		public bool SuspendWhenOverUI
+		{
+			get => suspendWhenOverUI;
+			set => suspendWhenOverUI = value;
+		}
+
+		/// <summary>
+		/// Should the cursor coordinates be reported in pixel coordinates (as reported by Input.mousePosition), or in GUI coordinates (as reported by OnGUI events)?
+		/// </summary>
+		public bool CursorPositionInPixelCoordinates
+		{
+			get => cursorPositionInPixelCoordinates;
+			set => cursorPositionInPixelCoordinates = value;
+		}
+
+		/// <summary>
+		/// Is the cursor currently registered to be over an interactable UI element?
+		/// </summary>
+		public bool IsCursorOverUI
+		{
+			get => (EventSystem.current != null) ? EventSystem.current.IsPointerOverGameObject() : false;
+		}
+
+		private Vector3 PreviousMousePosition
+		{
+			get
+			{
+				if (cursorPositionInPixelCoordinates)
+				{
+					return previousMousePosition;
+				}
+				else
+				{
+					Vector3 t = previousMousePosition;
+					t.y = Screen.height - t.y;
+					return t;
+				}
+			}
+		}
+
+		private Vector3 CurrentMousePosition
+		{
+			get
+			{
+				if (cursorPositionInPixelCoordinates)
+				{
+					return Input.mousePosition;
+				}
+				else
+				{
+					Vector3 t = Input.mousePosition;
+					t.y = Screen.height - t.y;
+					return t;
+				}
 			}
 		}
 
@@ -172,19 +236,19 @@
 				int mouseButtonIndex = (int)mouseButton;
 				Event mouseEvent = null;
 
-				if (Input.GetMouseButton(mouseButtonIndex))
-				{
-					if (mousePosition != Input.mousePosition)
-					{
-						mouseEvent = new Event();
-						mouseEvent.type = EventType.MouseDrag;
-						mouseEvent.delta = Input.mousePosition - mousePosition;
-					}
-				}
-				else if (Input.GetMouseButtonDown(mouseButtonIndex))
+				if (Input.GetMouseButtonDown(mouseButtonIndex))
 				{
 					mouseEvent = new Event();
 					mouseEvent.type = EventType.MouseDown;
+				}
+				else if (Input.GetMouseButton(mouseButtonIndex))
+				{
+					if (PreviousMousePosition != CurrentMousePosition)
+					{
+						mouseEvent = new Event();
+						mouseEvent.type = EventType.MouseDrag;
+						mouseEvent.delta = CurrentMousePosition - PreviousMousePosition;
+					}
 				}
 				else if (Input.GetMouseButtonUp(mouseButtonIndex))
 				{
@@ -192,17 +256,29 @@
 					mouseEvent.type = EventType.MouseUp;
 				}
 
-				if (mouseEvent != null)
+				// If no event was created, then just skip this mouse button.
+				if (mouseEvent == null)
 				{
-					mouseEvent.button = mouseButtonIndex;
-					mouseEvent.mousePosition = Input.mousePosition;
-					mouseEvent.keyCode = MapMouseButtonToKeyCode(mouseButton);
-					ApplyModifierKeys(mouseEvent);
+					continue;
+				}
+
+				mouseEvent.button = mouseButtonIndex;
+				mouseEvent.mousePosition = CurrentMousePosition;
+				mouseEvent.keyCode = MapMouseButtonToKeyCode(mouseButton);
+				ApplyModifierKeys(mouseEvent);
+
+				if (suspendWhenOverUI && IsCursorOverUI)
+				{
+					stateTrackers[mouseButton].Suspend(mouseEvent);
+				}
+				else
+				{
 					stateTrackers[mouseButton].ProcessEvent(mouseEvent);
 				}
 			}
 
-			mousePosition = Input.mousePosition;
+			// Keep this one unfiltered by the option to return pixel coordinates.
+			previousMousePosition = Input.mousePosition;
 
 			/// <summary>
 			/// Apply any modifier keys being held down to the mouse event.
