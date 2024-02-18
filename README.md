@@ -9,6 +9,12 @@ This tool offers you the following features:
 * Events and callbacks for these operations, and
 * Tracking over several mouse buttons at once.
 
+## Installation
+
+You can add this tool to your project using Unity's package manager. Add the following git-tracked URL to your project:
+
+> https://github.com/juniordiscart/ImpossibleOdds-MouseEvents.git?path=/Assets/Impossible%20Odds/MouseEvents
+
 ## Quick Setup
 
 Attach the `MouseEventMonitor` script to a game object in your scene, and set which mouse buttons it should monitor. Additionally, adjust the time it takes to distinguish between single clicks and multi-clicks of a mouse button.
@@ -104,6 +110,17 @@ Developed and tested on Unity 2019.4 LTS.
 ## License
 
 This package is provided under the [MIT][License] license.
+
+## Changelog
+
+### v1.1.0
+
+* Moved away from working in the `OnGUI` loop because it seems to there's a bug in its cycle, which skips a frame and can't reliably poll for inputs. The `MouseEventMonitor` will now work very early in the regular `Update` cycle.
+* Added the `onDragStart` event which is called whenever the mouse events monitor detects that the user starts dragging the mouse while holding one of the tracked mouse buttons.
+* Added the `onNewFrame` event which can be useful to clear any mouse event caches.
+* Added the `IsTerminalEvent` property to the `MouseButtonEvent` struct to detect whether the mouse event can evolve further into different events or not.
+* Updated the `MouseEventMonitor` to allow suspension of operations when it detects the cursor is over UI elements.
+* Removed the TextMeshPro dependency.
 
 [License]: ./LICENSE.md
 [Changelog]: ./CHANGELOG.md

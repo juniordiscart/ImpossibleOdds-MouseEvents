@@ -39,3 +39,4 @@ Assets/Photon/*
 Assets/Photon.meta
 *.DS_Store
 Logs/*
+.idea/*

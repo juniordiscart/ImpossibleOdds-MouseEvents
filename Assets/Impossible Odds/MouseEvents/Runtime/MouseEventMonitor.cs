@@ -1,15 +1,16 @@
-﻿namespace ImpossibleOdds.MouseEvents
-{
-	using System;
-	using System.Collections.Generic;
-	using UnityEngine;
-	using UnityEngine.EventSystems;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
+namespace ImpossibleOdds.MouseEvents
+{
 	/// <summary>
 	/// A monitoring class of mouse events to detect single & double clicks as well as drag behaviour.
 	/// Events are processed in OnGUI, which guarantees that the state is available for all scripts
 	/// querying for mouse events in Update, Late Update, Coroutines etc.
 	/// </summary>
+	[AddComponentMenu("Impossible Odds/Mouse Events/Mouse Event Monitor")]
 	public class MouseEventMonitor : MonoBehaviour
 	{
 		/// <summary>
@@ -54,10 +55,7 @@
 		/// <summary>
 		/// The mouse buttons currently being monitored for events.
 		/// </summary>
-		public IReadOnlyList<MouseButton> MonitoredButtons
-		{
-			get => monitoredButtons;
-		}
+		public IReadOnlyList<MouseButton> MonitoredButtons => monitoredButtons;
 
 		/// <summary>
 		/// How long should it wait to register a multi-click?
@@ -69,7 +67,7 @@
 			{
 				if (value <= 0f)
 				{
-					throw new ArgumentOutOfRangeException("The delay for single clicks should be greater than 0.");
+					throw new ArgumentOutOfRangeException(nameof(value), "The delay for single clicks should be greater than 0.");
 				}
 
 				multiClickTimeThreshold = value;
@@ -95,12 +93,9 @@
 		}
 
 		/// <summary>
-		/// Is the cursor currently registered to be over an interactable UI element?
+		/// Is the cursor currently registered to be over an interactive UI element?
 		/// </summary>
-		public bool IsCursorOverUI
-		{
-			get => (EventSystem.current != null) ? EventSystem.current.IsPointerOverGameObject() : false;
-		}
+		public bool IsCursorOverUI => (EventSystem.current != null) && EventSystem.current.IsPointerOverGameObject();
 
 		private Vector3 PreviousMousePosition
 		{
@@ -110,12 +105,10 @@
 				{
 					return previousMousePosition;
 				}
-				else
-				{
-					Vector3 t = previousMousePosition;
-					t.y = Screen.height - t.y;
-					return t;
-				}
+				
+				Vector3 t = previousMousePosition;
+				t.y = Screen.height - t.y;
+				return t;
 			}
 		}
 
@@ -127,12 +120,10 @@
 				{
 					return Input.mousePosition;
 				}
-				else
-				{
-					Vector3 t = Input.mousePosition;
-					t.y = Screen.height - t.y;
-					return t;
-				}
+				
+				Vector3 t = Input.mousePosition;
+				t.y = Screen.height - t.y;
+				return t;
 			}
 		}
 
@@ -143,7 +134,7 @@
 		/// <returns>The current event associated with the mouse button.</returns>
 		public MouseButtonEvent CurrentEvent(MouseButton mouseButton)
 		{
-			return stateTrackers.ContainsKey(mouseButton) ? MouseButtonEvent.Create(stateTrackers[mouseButton]) : MouseButtonEvent.None;
+			return stateTrackers.TryGetValue(mouseButton, out MouseButtonStateTracker tracker) ? MouseButtonEvent.Create(tracker) : MouseButtonEvent.None;
 		}
 
 		/// <summary>
@@ -162,16 +153,18 @@
 		/// <param name="mouseButton">The mouse button to monitor for events.</param>
 		public void StartMonitoring(MouseButton mouseButton)
 		{
-			if (!IsMonitored(mouseButton))
+			if (IsMonitored(mouseButton))
 			{
-				monitoredButtons.Add(mouseButton);
+				return;
+			}
+			
+			monitoredButtons.Add(mouseButton);
 
-				if (enabled)
-				{
-					MouseButtonStateTracker stateTracker = new MouseButtonStateTracker(mouseButton, () => multiClickTimeThreshold);
-					stateTrackers[mouseButton] = stateTracker;
-					stateTracker.onStateUpdated += OnMouseKeyStateUpdate;
-				}
+			if (enabled)
+			{
+				MouseButtonStateTracker stateTracker = new MouseButtonStateTracker(mouseButton, () => multiClickTimeThreshold);
+				stateTrackers[mouseButton] = stateTracker;
+				stateTracker.onStateUpdated += OnMouseKeyStateUpdate;
 			}
 		}
 
@@ -238,22 +231,28 @@
 
 				if (Input.GetMouseButtonDown(mouseButtonIndex))
 				{
-					mouseEvent = new Event();
-					mouseEvent.type = EventType.MouseDown;
+					mouseEvent = new Event
+					{
+						type = EventType.MouseDown
+					};
 				}
 				else if (Input.GetMouseButton(mouseButtonIndex))
 				{
 					if (PreviousMousePosition != CurrentMousePosition)
 					{
-						mouseEvent = new Event();
-						mouseEvent.type = EventType.MouseDrag;
-						mouseEvent.delta = CurrentMousePosition - PreviousMousePosition;
+						mouseEvent = new Event
+						{
+							type = EventType.MouseDrag,
+							delta = CurrentMousePosition - PreviousMousePosition
+						};
 					}
 				}
 				else if (Input.GetMouseButtonUp(mouseButtonIndex))
 				{
-					mouseEvent = new Event();
-					mouseEvent.type = EventType.MouseUp;
+					mouseEvent = new Event
+					{
+						type = EventType.MouseUp
+					};
 				}
 
 				// If no event was created, then just skip this mouse button.
@@ -280,9 +279,7 @@
 			// Keep this one unfiltered by the option to return pixel coordinates.
 			previousMousePosition = Input.mousePosition;
 
-			/// <summary>
-			/// Apply any modifier keys being held down to the mouse event.
-			/// </summary>
+			// Apply any modifier keys being held down to the mouse event.
 			void ApplyModifierKeys(Event mouseEvent)
 			{
 				if (Input.GetKey(KeyCode.AltGr) || Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
@@ -307,9 +304,7 @@
 				}
 			}
 
-			/// <summary>
-			/// Map a mouse button value to a mouse button key code.
-			/// </summary>
+			// Map a mouse button value to a mouse button key code.
 			KeyCode MapMouseButtonToKeyCode(MouseButton mouseButton)
 			{
 				switch (mouseButton)
@@ -357,10 +352,7 @@
 
 		private void CallEvent(Action<MouseButtonEvent> action, MouseButtonEvent mouseEventData)
 		{
-			if (action != null)
-			{
-				action(mouseEventData);
-			}
+			action?.Invoke(mouseEventData);
 		}
 	}
 }

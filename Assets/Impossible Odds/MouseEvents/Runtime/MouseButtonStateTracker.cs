@@ -1,8 +1,8 @@
-﻿namespace ImpossibleOdds.MouseEvents
-{
-	using System;
-	using UnityEngine;
+﻿using System;
+using UnityEngine;
 
+namespace ImpossibleOdds.MouseEvents
+{
 	public class MouseButtonStateTracker
 	{
 		public event Action<MouseButtonStateTracker> onStateUpdated;
@@ -20,42 +20,27 @@
 		/// <summary>
 		/// The mouse button it is tracking.
 		/// </summary>
-		public MouseButton Key
-		{
-			get => button;
-		}
+		public MouseButton Key => button;
 
 		/// <summary>
 		/// The current state the button resides in.
 		/// </summary>
-		public MouseButtonEventType State
-		{
-			get => state;
-		}
+		public MouseButtonEventType State => state;
 
 		/// <summary>
 		/// The modifier keys.
 		/// </summary>
-		public EventModifiers Modifiers
-		{
-			get => lastModifiers;
-		}
+		public EventModifiers Modifiers => lastModifiers;
 
 		/// <summary>
 		/// The mouse cursor position when a drag operation started.
 		/// </summary>
-		public Vector2 DragStartPosition
-		{
-			get => dragStartPosition;
-		}
+		public Vector2 DragStartPosition => dragStartPosition;
 
 		/// <summary>
 		/// The current mouse cursor position.
 		/// </summary>
-		public Vector2 MousePosition
-		{
-			get => mousePosition;
-		}
+		public Vector2 MousePosition => mousePosition;
 
 		public MouseButtonStateTracker(MouseButton button, Func<float> multiClickTimeThreshold)
 		{
@@ -237,10 +222,7 @@
 
 		private void OnStateUpdated()
 		{
-			if (onStateUpdated != null)
-			{
-				onStateUpdated(this);
-			}
+			onStateUpdated?.Invoke(this);
 		}
 	}
 }

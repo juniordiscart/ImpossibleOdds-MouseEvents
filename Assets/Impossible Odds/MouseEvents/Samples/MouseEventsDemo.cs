@@ -1,26 +1,26 @@
-﻿namespace ImpossibleOdds.Examples.MouseEvents
-{
-	using System.Collections;
-	using System.Collections.Generic;
-	using UnityEngine;
-	using UnityEngine.UI;
-	using ImpossibleOdds.MouseEvents;
+﻿using System.Collections;
+using System.Collections.Generic;
+using ImpossibleOdds.MouseEvents;
+using UnityEngine;
+using UnityEngine.UI;
 
+namespace ImpossibleOdds.Examples.MouseEvents
+{
 	public class MouseEventsDemo : MonoBehaviour
 	{
 		[SerializeField]
-		private Text txtLeft = null;
+		private Text txtLeft;
 		[SerializeField]
-		private Text txtMiddle = null;
+		private Text txtMiddle;
 		[SerializeField]
-		private Text txtRight = null;
+		private Text txtRight;
 		[SerializeField]
-		private Text txtIsCursorOverUI = null;
+		private Text txtIsCursorOverUI;
 		[SerializeField]
-		private Toggle toggleSuspendOverUI = null;
+		private Toggle toggleSuspendOverUI;
 
 		[SerializeField]
-		private MouseEventMonitor monitor = null;
+		private MouseEventMonitor monitor;
 
 		[SerializeField, Range(0f, 5f)]
 		private float statusClearTime = 3f;
@@ -38,7 +38,7 @@
 
 		private void Update()
 		{
-			txtIsCursorOverUI.text = string.Format("Is cursor over UI? - {0}", (monitor.IsCursorOverUI ? "Yes" : "No"));
+			txtIsCursorOverUI.text = $"Is cursor over UI? - {(monitor.IsCursorOverUI ? "Yes" : "No")}";
 		}
 
 		private void OnMouseEvent(MouseButtonEvent mouseEvent)
@@ -91,9 +91,9 @@
 			// So don't clear it when this state is detected.
 			if (!mouseEvent.IsDragging && (display != null))
 			{
-				if (pendingClearRoutines.ContainsKey(display))
+				if (pendingClearRoutines.TryGetValue(display, out Coroutine routine))
 				{
-					StopCoroutine(pendingClearRoutines[display]);
+					StopCoroutine(routine);
 				}
 
 				pendingClearRoutines[display] = StartCoroutine(RoutineClearText(display, clearText));

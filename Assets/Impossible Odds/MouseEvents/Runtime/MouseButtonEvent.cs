@@ -1,8 +1,8 @@
-﻿namespace ImpossibleOdds.MouseEvents
-{
-	using UnityEngine;
+﻿using UnityEngine;
 
-	public struct MouseButtonEvent
+namespace ImpossibleOdds.MouseEvents
+{
+	public readonly struct MouseButtonEvent
 	{
 		/// <summary>
 		/// Create an event based on the given even tracker.
@@ -53,13 +53,13 @@
 		}
 
 		/// <summary>
-		/// Create a drag event. This event can represent the start of the drag manoeuver, or an ongoing drag manoeuver.
+		/// Create a drag event. This event can represent the start of the drag maneuver, or an ongoing drag maneuver.
 		/// </summary>
 		/// <param name="mouseButton">The mouse button that relates to the drag event.</param>
-		/// <param name="startPosition">The start position of the mouse of this drag manoeuver.</param>
-		/// <param name="currentPosition">The current mouse position of this drag manoeuver.</param>
-		/// <param name="modifiers">The manoeuver active during this event.</param>
-		/// <returns>An event representing a mouse drag manoeuver.</returns>
+		/// <param name="startPosition">The start position of the mouse of this drag maneuver.</param>
+		/// <param name="currentPosition">The current mouse position of this drag maneuver.</param>
+		/// <param name="modifiers">The maneuver active during this event.</param>
+		/// <returns>An event representing a mouse drag maneuver.</returns>
 		public static MouseButtonEvent CreateDraggingEvent(MouseButton mouseButton, Vector2 startPosition, Vector2 currentPosition, EventModifiers modifiers = EventModifiers.None)
 		{
 			return new MouseButtonEvent(mouseButton, modifiers, MouseButtonEventType.Dragging, startPosition, currentPosition);
@@ -69,9 +69,9 @@
 		/// Create a drag completed event.
 		/// </summary>
 		/// <param name="mouseButton">The mouse button that relates to the drag event.</param>
-		/// <param name="startPosition">The start position of the mouse of this drag manoeuver.</param>
-		/// <param name="currentPosition">The mouse position at the end of this drag manoeuver.</param>
-		/// <param name="modifiers">The manoeuver active during this event.</param>
+		/// <param name="startPosition">The start position of the mouse of this drag maneuver.</param>
+		/// <param name="currentPosition">The mouse position at the end of this drag maneuver.</param>
+		/// <param name="modifiers">The maneuver active during this event.</param>
 		/// <returns>An event representing a mouse drag completed.</returns>
 		public static MouseButtonEvent CreateDragCompletedEvent(MouseButton mouseButton, Vector2 startPosition, Vector2 currentPosition, EventModifiers modifiers = EventModifiers.None)
 		{
@@ -81,10 +81,7 @@
 		/// <summary>
 		/// An empty mouse event.
 		/// </summary>
-		public static MouseButtonEvent None
-		{
-			get => new MouseButtonEvent(MouseButton.None, EventModifiers.None, MouseButtonEventType.None);
-		}
+		public static MouseButtonEvent None => new MouseButtonEvent(MouseButton.None, EventModifiers.None, MouseButtonEventType.None);
 
 		private readonly MouseButton mouseButton;
 		private readonly EventModifiers modifiers;
@@ -108,26 +105,17 @@
 		/// <summary>
 		/// The mouse button this event is associated with.
 		/// </summary>
-		public MouseButton Button
-		{
-			get => mouseButton;
-		}
+		public MouseButton Button => mouseButton;
 
 		/// <summary>
 		/// The type of event.
 		/// </summary>
-		public MouseButtonEventType EventType
-		{
-			get => buttonState;
-		}
+		public MouseButtonEventType EventType => buttonState;
 
 		/// <summary>
 		/// The active modifiers during this mouse event.
 		/// </summary>
-		public EventModifiers Modifiers
-		{
-			get => modifiers;
-		}
+		public EventModifiers Modifiers => modifiers;
 
 		/// <summary>
 		/// Does the event represent a mouse click?
@@ -148,7 +136,7 @@
 		}
 
 		/// <summary>
-		/// Does the event represent a dragging manoeuver?
+		/// Does the event represent a dragging maneuver?
 		/// </summary>
 		public bool IsDrag
 		{
@@ -169,66 +157,42 @@
 		/// <summary>
 		/// Is this event a single-click event?
 		/// </summary>
-		public bool IsSingleClick
-		{
-			get => buttonState == MouseButtonEventType.SingleClick;
-		}
+		public bool IsSingleClick => buttonState == MouseButtonEventType.SingleClick;
 
 		/// <summary>
 		/// Is this event a double-click event?
 		/// </summary>
-		public bool IsDoubleClick
-		{
-			get => buttonState == MouseButtonEventType.DoubleClick;
-		}
+		public bool IsDoubleClick => buttonState == MouseButtonEventType.DoubleClick;
 
 		/// <summary>
 		/// Is this event a drag-start event?
 		/// </summary>
-		public bool IsDragStart
-		{
-			get => buttonState == MouseButtonEventType.DragStart;
-		}
+		public bool IsDragStart => buttonState == MouseButtonEventType.DragStart;
 
 		/// <summary>
 		/// Is this event an ongoing-drag event?
 		/// </summary>
-		public bool IsDragging
-		{
-			get => buttonState == MouseButtonEventType.Dragging;
-		}
+		public bool IsDragging => buttonState == MouseButtonEventType.Dragging;
 
 		/// <summary>
 		/// Is this event a drag completed event?
 		/// </summary>
-		public bool IsDragCompleted
-		{
-			get => buttonState == MouseButtonEventType.DragComplete;
-		}
+		public bool IsDragCompleted => buttonState == MouseButtonEventType.DragComplete;
 
 		/// <summary>
 		/// The position of the mouse at the start of the drag event.
 		/// </summary>
-		public Vector2 DragStartPosition
-		{
-			get => dragStart;
-		}
+		public Vector2 DragStartPosition => dragStart;
 
 		/// <summary>
 		/// The position of the mouse for this event.
 		/// </summary>
-		public Vector2 MousePosition
-		{
-			get => mousePosition;
-		}
+		public Vector2 MousePosition => mousePosition;
 
 		/// <summary>
 		/// The drag delta position of the mouse during a drag event.
 		/// </summary>
-		public Vector2 DragDelta
-		{
-			get => mousePosition - dragStart;
-		}
+		public Vector2 DragDelta => mousePosition - dragStart;
 
 		/// <summary>
 		/// The drag rectangle description of the mouse during a drag event.
@@ -246,9 +210,6 @@
 		/// <summary>
 		/// Does this event conclude the chain of possible follow-up mouse events?
 		/// </summary>
-		public bool IsTerminalEvent
-		{
-			get => buttonState.IsTerminalEvent();
-		}
+		public bool IsTerminalEvent => buttonState.IsTerminalEvent();
 	}
 }
