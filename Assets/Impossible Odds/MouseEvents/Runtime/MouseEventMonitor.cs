@@ -44,9 +44,9 @@ namespace ImpossibleOdds.MouseEvents
 		[SerializeField, Tooltip("How long (in seconds) should it wait for registering a multi-click event?"), Range(0.1f, 1f)]
 		private float multiClickTimeThreshold = 0.3f;
 		[SerializeField, Tooltip("When the cursor is over UI, should the mouse event monitor suspend operations?")]
-		private bool suspendWhenOverUI = false;
+		private bool suspendWhenOverUI;
 		[SerializeField, Tooltip("Should the cursor coordinates be reported in pixel coordinates (as reported by Input.mousePosition), or in GUI coordinates (as reported by OnGUI events)?")]
-		private bool cursorPositionInPixelCoordinates = false;
+		private bool cursorPositionInPixelCoordinates;
 
 		private Dictionary<MouseButton, MouseButtonStateTracker> stateTrackers = new Dictionary<MouseButton, MouseButtonStateTracker>();
 		private int frameCount = -1;
@@ -227,44 +227,35 @@ namespace ImpossibleOdds.MouseEvents
 			foreach (MouseButton mouseButton in stateTrackers.Keys)
 			{
 				int mouseButtonIndex = (int)mouseButton;
-				Event mouseEvent = null;
+				Event mouseEvent = new Event();
 
 				if (Input.GetMouseButtonDown(mouseButtonIndex))
 				{
-					mouseEvent = new Event
-					{
-						type = EventType.MouseDown
-					};
+					mouseEvent.type = EventType.MouseDown;
 				}
 				else if (Input.GetMouseButton(mouseButtonIndex))
 				{
 					if (PreviousMousePosition != CurrentMousePosition)
 					{
-						mouseEvent = new Event
-						{
-							type = EventType.MouseDrag,
-							delta = CurrentMousePosition - PreviousMousePosition
-						};
+						mouseEvent.type = EventType.MouseDrag;
+					}
+					else
+					{
+						continue;
 					}
 				}
 				else if (Input.GetMouseButtonUp(mouseButtonIndex))
 				{
-					mouseEvent = new Event
-					{
-						type = EventType.MouseUp
-					};
+					mouseEvent.type = EventType.MouseUp;
 				}
-
-				// If no event was created, then just skip this mouse button.
-				if (mouseEvent == null)
+				else
 				{
 					continue;
 				}
 
-				mouseEvent.button = mouseButtonIndex;
+				mouseEvent.button = mouseButton;
 				mouseEvent.mousePosition = CurrentMousePosition;
-				mouseEvent.keyCode = MapMouseButtonToKeyCode(mouseButton);
-				ApplyModifierKeys(mouseEvent);
+				mouseEvent = ApplyModifierKeys(mouseEvent);
 
 				if (suspendWhenOverUI && IsCursorOverUI)
 				{
@@ -280,7 +271,7 @@ namespace ImpossibleOdds.MouseEvents
 			previousMousePosition = Input.mousePosition;
 
 			// Apply any modifier keys being held down to the mouse event.
-			void ApplyModifierKeys(Event mouseEvent)
+			Event ApplyModifierKeys(Event mouseEvent)
 			{
 				if (Input.GetKey(KeyCode.AltGr) || Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
 				{
@@ -302,22 +293,8 @@ namespace ImpossibleOdds.MouseEvents
 				{
 					mouseEvent.command = true;
 				}
-			}
 
-			// Map a mouse button value to a mouse button key code.
-			KeyCode MapMouseButtonToKeyCode(MouseButton mouseButton)
-			{
-				switch (mouseButton)
-				{
-					case MouseButton.Left:
-						return KeyCode.Mouse0;
-					case MouseButton.Right:
-						return KeyCode.Mouse1;
-					case MouseButton.Middle:
-						return KeyCode.Mouse2;
-					default:
-						return KeyCode.None;
-				}
+				return mouseEvent;
 			}
 		}
 

@@ -73,10 +73,10 @@ namespace ImpossibleOdds.MouseEvents
 			}
 		}
 
-		public void ProcessEvent(Event mouseEvent)
+		internal void ProcessEvent(Event mouseEvent)
 		{
 			// If the button doesn't match, don't bother.
-			if ((MouseButton)mouseEvent.button != (MouseButton)button)
+			if (mouseEvent.button != button)
 			{
 				return;
 			}
@@ -92,7 +92,7 @@ namespace ImpossibleOdds.MouseEvents
 			}
 		}
 
-		public void Suspend(Event mouseEvent)
+		internal void Suspend(Event mouseEvent)
 		{
 			// If the button doesn't match, don't bother.
 			if ((MouseButton)mouseEvent.button != (MouseButton)button)
