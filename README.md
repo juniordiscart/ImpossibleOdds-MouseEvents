@@ -122,6 +122,10 @@ This package is provided under the [MIT][License] license.
 * Updated the `MouseEventMonitor` to allow suspension of operations when it detects the cursor is over UI elements.
 * Removed the TextMeshPro dependency.
 
+### v1.2.0
+
+* Fixed a runtime issue where clicks would be invalidated due to using Unity's built-in `Event` struct. This structure would put the event type to `Ignore` while it was actually a mouse button up/down event.
+
 [License]: ./LICENSE.md
 [Changelog]: ./CHANGELOG.md
 [Logo]: ./Docs/Images/ImpossibleOddsLogo.png
