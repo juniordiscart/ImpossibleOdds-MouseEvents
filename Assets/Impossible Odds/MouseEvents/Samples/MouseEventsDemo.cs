@@ -87,6 +87,11 @@ namespace ImpossibleOdds.Examples.MouseEvents
 					break;
 			}
 
+			if (display != null)
+			{
+				Debug.Log(display.text);
+			}
+
 			// The dragging event is not send out each frame if there's not mouse movement.
 			// So don't clear it when this state is detected.
 			if (!mouseEvent.IsDragging && (display != null))

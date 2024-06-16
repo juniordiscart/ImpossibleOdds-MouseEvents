@@ -160,7 +160,7 @@ namespace ImpossibleOdds.MouseEvents
 		public bool IsSingleClick => buttonState == MouseButtonEventType.SingleClick;
 
 		/// <summary>
-		/// Is this event a double-click event?
+		/// Is this event a double click event?
 		/// </summary>
 		public bool IsDoubleClick => buttonState == MouseButtonEventType.DoubleClick;
 

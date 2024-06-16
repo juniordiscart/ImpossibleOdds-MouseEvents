@@ -43,6 +43,8 @@ namespace ImpossibleOdds.MouseEvents
 		private List<MouseButton> monitoredButtons = new List<MouseButton>();
 		[SerializeField, Tooltip("How long (in seconds) should it wait for registering a multi-click event?"), Range(0.1f, 1f)]
 		private float multiClickTimeThreshold = 0.3f;
+		[SerializeField, Tooltip("How far can the mouse move (in pixels) before it is considered a drag movement?"), Range(0, 50)]
+		private float dragDistanceThreshold = 0f;
 		[SerializeField, Tooltip("When the cursor is over UI, should the mouse event monitor suspend operations?")]
 		private bool suspendWhenOverUI;
 		[SerializeField, Tooltip("Should the cursor coordinates be reported in pixel coordinates (as reported by Input.mousePosition), or in GUI coordinates (as reported by OnGUI events)?")]
@@ -71,6 +73,23 @@ namespace ImpossibleOdds.MouseEvents
 				}
 
 				multiClickTimeThreshold = value;
+			}
+		}
+
+		/// <summary>
+		/// How far can the mouse cursor be dragged (in pixels) before it registers the start of a drag operation?
+		/// </summary>
+		public float DragDistanceThreshold
+		{
+			get => dragDistanceThreshold;
+			set
+			{
+				if (value < 0f)
+				{
+					throw new ArgumentOutOfRangeException(nameof(value), "The drag distance threshold should be greater than or equal to 0.");
+				}
+
+				dragDistanceThreshold = value;
 			}
 		}
 
@@ -160,12 +179,17 @@ namespace ImpossibleOdds.MouseEvents
 			
 			monitoredButtons.Add(mouseButton);
 
-			if (enabled)
+			if (!enabled)
 			{
-				MouseButtonStateTracker stateTracker = new MouseButtonStateTracker(mouseButton, () => multiClickTimeThreshold);
-				stateTrackers[mouseButton] = stateTracker;
-				stateTracker.onStateUpdated += OnMouseKeyStateUpdate;
+				return;
 			}
+			
+			MouseButtonStateTracker stateTracker = new MouseButtonStateTracker(
+				mouseButton, 
+				() => multiClickTimeThreshold,
+				() => dragDistanceThreshold);
+			stateTrackers[mouseButton] = stateTracker;
+			stateTracker.onStateUpdated += OnMouseKeyStateUpdate;
 		}
 
 		/// <summary>
@@ -185,7 +209,10 @@ namespace ImpossibleOdds.MouseEvents
 		{
 			foreach (MouseButton key in monitoredButtons)
 			{
-				MouseButtonStateTracker state = new MouseButtonStateTracker(key, () => multiClickTimeThreshold);
+				MouseButtonStateTracker state = new MouseButtonStateTracker(
+					key,
+					() => multiClickTimeThreshold,
+					() => dragDistanceThreshold);
 				stateTrackers[key] = state;
 				state.onStateUpdated += OnMouseKeyStateUpdate;
 			}

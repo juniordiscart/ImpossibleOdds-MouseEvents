@@ -8,7 +8,8 @@ namespace ImpossibleOdds.MouseEvents
 		public event Action<MouseButtonStateTracker> onStateUpdated;
 
 		private readonly MouseButton button;
-		private readonly Func<float> multiClickTimeThreshold = null;
+		private readonly Func<float> multiClickTimeThreshold;
+		private readonly Func<float> dragDistanceThreshold;
 
 		private MouseButtonEventType state = MouseButtonEventType.None;
 		private EventModifiers lastModifiers = EventModifiers.None;
@@ -42,10 +43,11 @@ namespace ImpossibleOdds.MouseEvents
 		/// </summary>
 		public Vector2 MousePosition => mousePosition;
 
-		public MouseButtonStateTracker(MouseButton button, Func<float> multiClickTimeThreshold)
+		public MouseButtonStateTracker(MouseButton button, Func<float> multiClickTimeThreshold, Func<float> dragDistanceThreshold)
 		{
 			this.button = button;
 			this.multiClickTimeThreshold = multiClickTimeThreshold;
+			this.dragDistanceThreshold = dragDistanceThreshold;
 			ClearState();
 		}
 
@@ -95,7 +97,7 @@ namespace ImpossibleOdds.MouseEvents
 		internal void Suspend(Event mouseEvent)
 		{
 			// If the button doesn't match, don't bother.
-			if ((MouseButton)mouseEvent.button != (MouseButton)button)
+			if (mouseEvent.button != button)
 			{
 				return;
 			}
@@ -128,6 +130,7 @@ namespace ImpossibleOdds.MouseEvents
 			switch (state)
 			{
 				case MouseButtonEventType.None:
+				case MouseButtonEventType.DragPending:
 					state = MouseButtonEventType.SingleClickPending;
 					lastModifiers = mouseEvent.modifiers;
 					mousePosition = mouseEvent.mousePosition;
@@ -163,17 +166,27 @@ namespace ImpossibleOdds.MouseEvents
 				return;
 			}
 
-			// If a single click was still pending,
-			// then perform the click before getting to the drag operation.
+			// If a single click was still pending, then perform the click before getting to the drag operation.
 			if (state == MouseButtonEventType.SingleClickPending)
 			{
 				state = MouseButtonEventType.SingleClick;
 				lastClickAction = 0f;
 			}
-			else if ((state != MouseButtonEventType.DragStart) && (state != MouseButtonEventType.Dragging))
+			else if ((state != MouseButtonEventType.DragPending) &&
+			         (state != MouseButtonEventType.DragStart) &&
+			         (state != MouseButtonEventType.Dragging))
 			{
-				state = MouseButtonEventType.DragStart; // The first of such events initiates the drag start.
+				state = MouseButtonEventType.DragPending; // The first of such events declares that drag is pending, until the drag threshold is exceeded.
 				dragStartPosition = mouseEvent.mousePosition;
+				mousePosition = mouseEvent.mousePosition;
+			}
+			else if (state == MouseButtonEventType.DragPending)
+			{
+				if (Vector2.Distance(mouseEvent.mousePosition, dragStartPosition) > dragDistanceThreshold())
+				{
+					state = MouseButtonEventType.DragStart; // The first of such events initiates the drag start.
+				}
+				
 				mousePosition = mouseEvent.mousePosition;
 			}
 			else

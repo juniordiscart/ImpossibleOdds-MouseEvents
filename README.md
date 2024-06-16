@@ -36,7 +36,7 @@ Additionally, you can also query the state of a specific mouse button on the mou
 
 ## Advanced
 
-The main point of entry is the `MouseEventMonitor` script. It requires to be placed on a game object in your scene and will monitor the mouse inputs you set it up to be: left, right and/or middle mouse buttons. Apart from which mouse buttons it should monitor, you can also adjust the time threshold for registering multi-clicks (double click). Unity does not allow to transparently distinguish between single click and double click without always invoking the single click event. This multi-click time threshold is the time limit it will delay a single click event while listening in for a secondary click or other event.
+The main point of entry is the `MouseEventMonitor` script. It requires to be placed on a game object in your scene and will monitor the mouse inputs you set it up to be: left, right and/or middle mouse buttons. Apart from which mouse buttons it should monitor, you can also adjust the time threshold for registering multi-clicks (double click). Unity does not allow to transparently distinguish between single click and double click without always invoking the single click event. This multi-click time threshold is the time limit it will delay a single click event while listening in for a secondary click or other event. Additionally, you can also set a drag distance threshold for when you want to let small or accidental drag operations to still count as a click event instead.
 
 You can listen for events of the registered mouse buttons as well as querying the current state of a particular button using the `CurrentEvent` method. When a new mouse button requires monitoring, you can add it using the `StartMonitoring` method. Conversely, you can also stop monitoring events for a specific mouse button by calling the `StopMonitoring` method.
 
@@ -125,6 +125,11 @@ This package is provided under the [MIT][License] license.
 ### v1.2.0
 
 * Fixed a runtime issue where clicks would be invalidated due to using Unity's built-in `Event` struct. This structure would put the event type to `Ignore` while it was actually a mouse button up/down event.
+
+### v1.3.0
+
+* Added a `DragDistanceThreshold` to the the `MouseEventMonitor` to allow small/accidental drag operations to still register as a click.
+* Updated the sample scene to also log the performed actions to the console.
 
 [License]: ./LICENSE.md
 [Changelog]: ./CHANGELOG.md

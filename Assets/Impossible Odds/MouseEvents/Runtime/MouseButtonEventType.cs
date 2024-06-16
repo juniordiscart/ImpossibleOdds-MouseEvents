@@ -3,36 +3,40 @@
 	/// <summary>
 	/// States a mouse button can reside in.
 	/// </summary>
-	public enum MouseButtonEventType : int
+	public enum MouseButtonEventType
 	{
 		/// <summary>
 		/// No current event of interest has happened.
 		/// </summary>
-		None = 0,
+		None,
 		/// <summary>
 		/// When the mouse button performed a single click, but is waiting for a follow-up action.
 		/// </summary>
-		SingleClickPending = 1,
+		SingleClickPending,
 		/// <summary>
 		/// When the mouse button performed a single click.
 		/// </summary>
-		SingleClick = 2,
+		SingleClick,
 		/// <summary>
 		/// When the mouse button performed a double click.
 		/// </summary>
-		DoubleClick = 3,
+		DoubleClick,
+		/// <summary>
+		/// When the mouse button is being dragged, but the threshold for a drag action has not been met yet.
+		/// </summary>
+		DragPending,
 		/// <summary>
 		/// When the mouse button is being used to initiate a drag action.
 		/// </summary>
-		DragStart = 4,
+		DragStart,
 		/// <summary>
 		/// When the mouse button is being used for dragging.
 		/// </summary>
-		Dragging = 5,
+		Dragging,
 		/// <summary>
 		/// When the mouse button completed a drag action.
 		/// </summary>
-		DragComplete = 6,
+		DragComplete,
 
 		Idle = None
 	}
